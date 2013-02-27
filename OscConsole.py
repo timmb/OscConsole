@@ -111,6 +111,7 @@ class OscConsole(QtGui.QWidget):
 				self.console_box.appendHtml(message)
 				cursor = self.console_box.textCursor()
 				cursor.movePosition(QtGui.QTextCursor.End)
+				cursor.movePosition(QtGui.QTextCursor.StartOfLine)
 				self.console_box.setTextCursor(cursor)
 			self.messages.clear()
 			
