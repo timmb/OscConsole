@@ -25,6 +25,7 @@ class OscConsole(QtGui.QWidget):
 
 		self.console_box = QtGui.QTextEdit(self)
 		layout.addWidget(self.console_box)
+		self.console_box.setReadOnly(True)
 		self.console_update_timer = QtCore.QTimer()
 		self.console_update_timer.timeout.connect(self.check_to_update_console_box)
 		self.console_update_timer.start(200)
@@ -60,10 +61,9 @@ class OscConsole(QtGui.QWidget):
 			self.server.addMsgHandler('default', self.new_osc_message_callback)
 			self.serverThread = Thread(target=self.server.serve_forever)
 			self.serverThread.start()
-		except:
-			self.log('Unable to open server on port {}. \
-				Possibly it is already open.'.format(self.port_number))
-			self.log(traceback.format_exc())
+		except Exception as e:
+			self.log('Unable to open server on port {}. Possibly it is already open.'.format(self.port_number))
+			self.log(str(e))
 
 	def close_server(self):
 		# self.is_waiting_for_server_to_close = True
