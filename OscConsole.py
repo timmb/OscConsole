@@ -1,7 +1,5 @@
 #!/opt/local/bin/python
 # -*- coding: utf-8 -*-
-
-
 from osc.OSC import OSCServer
 import sys
 from PySide import QtGui, QtCore
@@ -87,6 +85,7 @@ class OscConsole(QtGui.QWidget):
 		add_message(formatted_message)
 
 	def add_message(self, string):
+		string = QtCore.QDateTime.currentDateTime().toString('hh:mm:ss')+' '+string
 		scoped_lock = QtCore.QWriteLocker(self.messages_mutex)
 		self.messages.append(string)
 		if len(self.messages) > 1000:
