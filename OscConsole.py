@@ -16,6 +16,7 @@ class OscConsole(QtGui.QWidget):
 		# self.is_waiting_for_server_to_close = False
 
 		self.messages = []
+		self.message_count = 0
 		self.messages_mutex = QtCore.QReadWriteLock()
 
 		self.open_server()
@@ -26,6 +27,7 @@ class OscConsole(QtGui.QWidget):
 		layout.addWidget(self.console_box)
 		self.console_box.setReadOnly(True)
 		self.console_box.setMaximumBlockCount(1000)
+		self.console_box.setWordWrapMode(QtGui.QTextOption.NoWrap)
 		# self.console_box.setCenterOnScroll(True)
 		self.console_update_timer = QtCore.QTimer()
 		self.console_update_timer.timeout.connect(self.check_to_update_console_box)
@@ -86,17 +88,27 @@ class OscConsole(QtGui.QWidget):
 		self.add_message(formatted_message)
 
 	def add_message(self, string):
-		string = QtCore.QDateTime.currentDateTime().toString('hh:mm:ss')+' '+string
+		time = QtCore.QDateTime.currentDateTime().toString('hh:mm:ss')
+		if self.message_count % 2:
+			background_color = '#fff'
+		else:
+			background_color = '#e2dea7'
+		# string = '<p style="background-color: {0};"> <span style="font-weight: bold">{1}</span> {2}</p>'.format(
+			# background_color, time, string)
+		string = '<span style="font-weight: bold">{1}</span> {2}</p>'.format(
+			background_color, time, string)
+		# print(string)
 		scoped_lock = QtCore.QWriteLocker(self.messages_mutex)
 		self.messages.append(string)
 		if len(self.messages) > 1000:
 			self.messages = self.messages[:1000]
+		self.message_count += 1
 
 	def check_to_update_console_box(self):
 		if self.messages:
 			scoped_lock = QtCore.QWriteLocker(self.messages_mutex)
 			for message in self.messages:
-				self.console_box.appendPlainText(message)
+				self.console_box.appendHtml(message)
 				cursor = self.console_box.textCursor()
 				cursor.movePosition(QtGui.QTextCursor.End)
 				self.console_box.setTextCursor(cursor)
