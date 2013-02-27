@@ -11,21 +11,22 @@ class OscConsole(QtGui.QWidget):
 	def __init__(self):
 		super(OscConsole, self).__init__()
 		
-		self.buffer_length = 1000
+		# self.buffer_length = 1000
 		self.port_number = 37000
 		# self.is_waiting_for_server_to_close = False
 
 		self.messages = []
-		self.messages_are_new = True
 		self.messages_mutex = QtCore.QReadWriteLock()
 
 		self.open_server()
 
 		layout = QtGui.QVBoxLayout()
 
-		self.console_box = QtGui.QTextEdit(self)
+		self.console_box = QtGui.QPlainTextEdit(self)
 		layout.addWidget(self.console_box)
 		self.console_box.setReadOnly(True)
+		self.console_box.setMaximumBlockCount(1000)
+		# self.console_box.setCenterOnScroll(True)
 		self.console_update_timer = QtCore.QTimer()
 		self.console_update_timer.timeout.connect(self.check_to_update_console_box)
 		self.console_update_timer.start(200)
@@ -82,7 +83,7 @@ class OscConsole(QtGui.QWidget):
 		# source path tags: args
 		formatted_message = '{0[0]}:{0[1]} {1} ({2}): {3}'.format(
 			source, path, tags, ', '.join(map(str,args)))
-		add_message(formatted_message)
+		self.add_message(formatted_message)
 
 	def add_message(self, string):
 		string = QtCore.QDateTime.currentDateTime().toString('hh:mm:ss')+' '+string
@@ -90,13 +91,16 @@ class OscConsole(QtGui.QWidget):
 		self.messages.append(string)
 		if len(self.messages) > 1000:
 			self.messages = self.messages[:1000]
-		self.messages_are_new = True
 
 	def check_to_update_console_box(self):
-		if self.messages_are_new:
+		if self.messages:
 			scoped_lock = QtCore.QWriteLocker(self.messages_mutex)
-			self.console_box.setPlainText('\n'.join(self.messages))
-			self.messages_are_new = False
+			for message in self.messages:
+				self.console_box.appendPlainText(message)
+				cursor = self.console_box.textCursor()
+				cursor.movePosition(QtGui.QTextCursor.End)
+				self.console_box.setTextCursor(cursor)
+			self.messages.clear()
 			
 
 
