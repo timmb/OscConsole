@@ -50,6 +50,11 @@ class OscConsole(QtGui.QApplication):
 		self._forward_host = "127.0.0.1"
 		self._forward_port = 37001
 		self._enable_forwarding = False
+		self.playback_file = None
+		self.mode = 'live'
+		self.playback_time = None
+		self.playback_start_time = None
+		self.playback_end_time = None
 
 		self.messages = []
 		self.message_count = 0
@@ -100,8 +105,8 @@ class OscConsole(QtGui.QApplication):
 		else:
 			self.sender.destination = (self.forward_host, self.forward_port)
 
-	def log(self, string):
-		self.add_message('*** '+string)
+	def log(self, string, screen_only=False):
+		self.add_message('*** '+string, screen_only)
 
 	def change_port(self, new_port_number):
 		self.port_number = new_port_number
@@ -142,20 +147,22 @@ class OscConsole(QtGui.QApplication):
 			message.append(args)
 			self.sender.send(message)
 
-	def add_message(self, string):
-		time = QtCore.QDateTime.currentDateTime().toString('hh:mm:ss')
+	def add_message(self, string, screen_only=False):
+		time = QtCore.QDateTime.currentDateTime().toString('hh:mm:ss.zzz')
 		# if self.message_count % 2:
 		# 	background_color = '#fff'
 		# else:
 		# 	background_color = '#e2dea7'
 		# string = '<p style="background-color: {0};"> <span style="font-weight: bold">{1}</span> {2}</p>'.format(
 			# background_color, time, string)
-		formatted_string = '<span style="font-weight: bold">{0}</span> {1}</p>'.format(
-			time, string)
-		unformatted_string = '{0}, {1}'.format(time, string)
-		# print(string)
 		# scoped_lock = QtCore.QWriteLocker(self.messages_mutex)
-		self.messages.append(unformatted_string)
+		formatted_string = '<span style="font-weight: bold;">{0}</span> {1}</p>'.format(
+			time, string)
+		if screen_only:
+			formatted_string = '<span style="color: #f32;">'+formatted_string+'</span>'
+		if not screen_only:
+			unformatted_string = '{0} {1}'.format(time, string)
+			self.messages.append(unformatted_string)
 		try:
 			self.messages_to_print.put_nowait(formatted_string)
 		except queue.Full as e:
@@ -164,6 +171,14 @@ class OscConsole(QtGui.QApplication):
 		if len(self.messages) > 250000:
 			self.messages = self.messages[:245000]
 		self.message_count += 1
+
+	def save_log(self, filename):
+		self.log("Saving to {}...".format(filename), screen_only=True)
+		with open(filename, 'w') as out:
+			for string in self.messages:
+				out.write(string)
+				out.write('\n')
+			self.log("Successfully saved "+filename.split('/')[-1], screen_only=True)
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -191,10 +206,12 @@ class MainWindow(QtGui.QMainWindow):
 
 		# remember which gui elements are being updating to prevent recursion
 		self.gui_elements_being_updated = []
+		self.save_file = ""
 
 		self.ui.liveOrPlaybackButtonGroup.setId(self.ui.liveRadio, 0)
 		self.ui.liveOrPlaybackButtonGroup.setId(self.ui.playbackRadio, 1)
 		self.ui.actionQuit.triggered.connect(QtGui.QApplication.instance().quit)
+		self.ui.actionSaveAs.triggered.connect(self.save_as)
 		self.ui.liveOrPlaybackButtonGroup.buttonClicked[int].connect(self.ui.liveOrPlaybackPages.setCurrentIndex)
 
 		self.ui.livePage.layout().setAlignment(QtCore.Qt.AlignTop)
@@ -228,6 +245,43 @@ class MainWindow(QtGui.QMainWindow):
 		self.app.set_enable_forwarding(value)
 		if (self.app.enable_forwarding != value):
 			self.update(self.ui.enableOutputInput, value, 'setChecked')
+
+	def change_to_live_mode(self):
+		pass
+
+	def change_to_playback_mode(self):
+		pass
+
+	def play_or_pause_button(self):
+		pass
+
+	def stop_button(self):
+		pass
+
+	def change_playback_time(self, value):
+		pass
+
+	def change_start_time(self, value):
+		pass
+
+	def change_end_time(self, value):
+		pass
+
+	def change_loop_playback(self, value):
+		pass
+
+	def reset_start_time(self):
+		pass
+
+	def reset_end_time(self):
+		pass
+
+	def save_as(self):
+		new_save_file = QtGui.QFileDialog.getSaveFileName(self, "Save log data", 
+			self.save_file, "OSC Logs (*.oscLog)","OSC Logs (*.oscLog)")[0]
+		if new_save_file:
+			self.save_file = new_save_file
+			self.app.save_log(self.save_file)
 
 
 	def check_to_update_console_box(self):

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Sat Mar 23 01:09:09 2013
+# Created: Sat Mar 23 12:15:55 2013
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -213,11 +213,11 @@ class Ui_MainWindow(object):
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.actionSaveLog = QtGui.QAction(MainWindow)
-        self.actionSaveLog.setObjectName("actionSaveLog")
+        self.actionSaveAs = QtGui.QAction(MainWindow)
+        self.actionSaveAs.setObjectName("actionSaveAs")
         self.actionQuit = QtGui.QAction(MainWindow)
         self.actionQuit.setObjectName("actionQuit")
-        self.menuFile.addAction(self.actionSaveLog)
+        self.menuFile.addAction(self.actionSaveAs)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -254,6 +254,7 @@ class Ui_MainWindow(object):
         self.outputAddressInput.setText(QtGui.QApplication.translate("MainWindow", "127.0.0.1", None, QtGui.QApplication.UnicodeUTF8))
         self.outputPortLabel.setText(QtGui.QApplication.translate("MainWindow", "Port", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSaveLog.setText(QtGui.QApplication.translate("MainWindow", "Save log", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSaveAs.setText(QtGui.QApplication.translate("MainWindow", "Save log as...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSaveAs.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionQuit.setText(QtGui.QApplication.translate("MainWindow", "Quit", None, QtGui.QApplication.UnicodeUTF8))
 
