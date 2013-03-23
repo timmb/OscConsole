@@ -6,6 +6,7 @@ from PySide import QtGui, QtCore
 from threading import Thread
 import traceback
 import Queue as queue
+import UX.MainWindow
 
 
 class ThreadedSender(QtCore.QThread):
@@ -42,93 +43,23 @@ class ThreadedSender(QtCore.QThread):
 		self.log("Sender thread finished")
 
 
-
-
-class OscConsole(QtGui.QWidget):
-	def __init__(self):
-		super(OscConsole, self).__init__()
-		
-		# self.buffer_length = 1000
+class OscConsole(QtGui.QApplication):
+	def __init__(self, argv):
+		super(OscConsole, self).__init__(argv)
 		self.port_number = 37000
 		self._forward_host = "127.0.0.1"
 		self._forward_port = 37001
 		self._enable_forwarding = False
-		# self.is_waiting_for_server_to_close = False
 
 		self.messages = []
 		self.message_count = 0
-		# self.messages_mutex = QtCore.QReadWriteLock()
+		self.messages_to_print = queue.Queue(50)
 
 		self.sender = ThreadedSender(self.log, self)
 		self.sender.start()
 
 		self.open_server()
-
-		layout = QtGui.QVBoxLayout()
-
-		self.console_box = QtGui.QPlainTextEdit(self)
-		layout.addWidget(self.console_box)
-		self.console_box.setReadOnly(True)
-		self.console_box.setMaximumBlockCount(1000)
-		self.console_box.setWordWrapMode(QtGui.QTextOption.NoWrap)
-		# self.console_box.setCenterOnScroll(True)
-		self.console_update_timer = QtCore.QTimer()
-		self.console_update_timer.timeout.connect(self.check_to_update_console_box)
-		self.console_update_timer.start(200)
-
-		footer = QtGui.QHBoxLayout()
-		layout.addLayout(footer)
-
-		footer.addWidget(QtGui.QLabel('Listen to port: '))
-		self.port_box = QtGui.QSpinBox(self)
-		footer.addWidget(self.port_box)
-		self.port_box.setMinimum(0)
-		self.port_box.setMaximum(65535)
-		self.port_box.setValue(self.port_number)
-		self.port_box.setKeyboardTracking(False)
-		self.port_box.valueChanged.connect(self.change_port)
-		
-		footer.addStretch()
-		self.enable_forward_input = QtGui.QCheckBox("Forward input", self)
-		footer.addWidget(self.enable_forward_input)
-		self.enable_forward_input.setChecked(self.enable_forwarding)
-		self.enable_forward_input.toggled.connect(self.set_enable_forwarding)
-
-		layout.addWidget(QtGui.QLabel("Destination"))
-		footer = QtGui.QHBoxLayout()
-		layout.addLayout(footer)
-		footer.addWidget(QtGui.QLabel("Address"))
-		self.forward_host_input = QtGui.QLineEdit(self)
-		footer.addWidget(self.forward_host_input)
-		self.forward_host_input.setText(self.forward_host)
-		self.forward_host_input.editingFinished.connect(self.set_forward_host)
-
-		footer.addWidget(QtGui.QLabel("Port"))
-		self.forward_port_input = QtGui.QSpinBox(self)
-		footer.addWidget(self.forward_port_input)
-		self.forward_port_input.setMinimum(0)
-		self.forward_port_input.setMaximum(65535)
-		self.forward_port_input.setValue(self.forward_port)
-		self.forward_port_input.setKeyboardTracking(False)
-		self.forward_port_input.valueChanged.connect(self.set_forward_port)
-
-		# remember which gui elements are being updating to prevent recursion
-		self.gui_elements_being_updated = []
-
-		self.setLayout(layout)
-		self.setWindowTitle('OSC Console')
-		self.sizeHint = lambda: QtCore.QSize(450, 600)
-		self.show()
-
-	def update(self, gui_element, new_value, update_function='setValue'):
-		'''Updates gui_element only if we are not already in the process
-		of updating that element (i.e. this function prevents recursive 
-		loops from Qt signaling when we update it).
-		'''
-		if gui_element not in self.gui_elements_being_updated:
-			self.gui_elements_being_updated.append(gui_element)
-			getattr(gui_element, update_function)(new_value)
-			self.gui_elements_being_updated.remove(gui_element)
+		self.aboutToQuit.connect(self.close)
 
 	@property
 	def forward_host(self):
@@ -138,8 +69,7 @@ class OscConsole(QtGui.QWidget):
 		if forward_host != self.forward_host:
 			self._forward_host = forward_host.strip()
 			# update gui
-			self.update(self.forward_host_input, self.forward_host)
-			self.change_enable_forwarding()
+			self.update_forwarding_settings()
 
 	@property
 	def forward_port(self):
@@ -148,8 +78,7 @@ class OscConsole(QtGui.QWidget):
 	def set_forward_port(self, forward_port):
 		if forward_port != self.forward_port:
 			self._forward_port = forward_port
-			self.update(self.forward_port_input, self.forward_port)
-			self.change_enable_forwarding()
+			self.update_forwarding_settings()
 
 	@property
 	def enable_forwarding(self):
@@ -158,20 +87,18 @@ class OscConsole(QtGui.QWidget):
 	def set_enable_forwarding(self, enable_forwarding):
 		if enable_forwarding != self.enable_forwarding:
 			self._enable_forwarding = enable_forwarding
-			self.update(self.enable_forward_input, self.enable_forwarding, 'setChecked')
-			self.change_enable_forwarding()
+			self.update_forwarding_settings()
 
 
-	def change_enable_forwarding(self):
+	def update_forwarding_settings(self):
 		if not self.enable_forwarding:
 			return
 		if (self.port_number == self.forward_port
-			and self.self.forward_host_input in ('localhost', '127.0.0.1')):
+			and self.forward_host in ('localhost', '127.0.0.1')):
 			log("Error: Cannot forward to the same host and port as the one being listened to")
 			self.enable_forwarding = False
 		else:
 			self.sender.destination = (self.forward_host, self.forward_port)
-
 
 	def log(self, string):
 		self.add_message('*** '+string)
@@ -201,17 +128,9 @@ class OscConsole(QtGui.QWidget):
 	def close_server(self):
 		if not hasattr(self, 'server') or not self.server.running:
 			return
-		# self.is_waiting_for_server_to_close = True
-		# self.log('Stopping server')
 		self.server.running = False
-		# self.log('Waiting for server thread to end')
 		self.serverThread.join()
-		# self.log('Closing server')
 		self.server.close()
-		# self.is_waiting_for_server_to_close = False
-
-	def change_buffer_length(self, new_buffer_length):
-		self.buffer_length = new_buffer_length
 
 	def new_osc_message_callback(self, path, tags, args, source):
 		# source path tags: args
@@ -225,43 +144,115 @@ class OscConsole(QtGui.QWidget):
 
 	def add_message(self, string):
 		time = QtCore.QDateTime.currentDateTime().toString('hh:mm:ss')
-		if self.message_count % 2:
-			background_color = '#fff'
-		else:
-			background_color = '#e2dea7'
+		# if self.message_count % 2:
+		# 	background_color = '#fff'
+		# else:
+		# 	background_color = '#e2dea7'
 		# string = '<p style="background-color: {0};"> <span style="font-weight: bold">{1}</span> {2}</p>'.format(
 			# background_color, time, string)
-		string = '<span style="font-weight: bold">{1}</span> {2}</p>'.format(
-			background_color, time, string)
+		formatted_string = '<span style="font-weight: bold">{0}</span> {1}</p>'.format(
+			time, string)
+		unformatted_string = '{0}, {1}'.format(time, string)
 		# print(string)
 		# scoped_lock = QtCore.QWriteLocker(self.messages_mutex)
-		self.messages.append(string)
-		if len(self.messages) > 1000:
-			self.messages = self.messages[:1000]
+		self.messages.append(unformatted_string)
+		try:
+			self.messages_to_print.put_nowait(formatted_string)
+		except queue.Full as e:
+			print("Warning: console buffer full")
+
+		if len(self.messages) > 250000:
+			self.messages = self.messages[:245000]
 		self.message_count += 1
 
+
+class MainWindow(QtGui.QMainWindow):
+	def __init__(self, main_application):
+		super(MainWindow, self).__init__()
+		self.app = main_application
+		self.ui = UX.MainWindow.Ui_MainWindow()
+		self.ui.setupUi(self)
+
+		self.console_update_timer = QtCore.QTimer()
+		self.console_update_timer.timeout.connect(self.check_to_update_console_box)
+		self.console_update_timer.start(200)
+
+		self.ui.listeningPortInput.setValue(self.app.port_number)
+		self.ui.listeningPortInput.editingFinished.connect(self.change_listening_port)
+		
+		self.ui.enableOutputInput.setChecked(self.app.enable_forwarding)
+		self.ui.enableOutputInput.toggled.connect(self.change_enable_output)
+
+		self.ui.outputAddressInput.setText(self.app.forward_host)
+		self.ui.outputAddressInput.editingFinished.connect(self.change_output_host)
+
+		self.ui.outputPortInput.setValue(self.app.forward_port)
+		self.ui.outputPortInput.editingFinished.connect(self.change_output_port)
+
+		# remember which gui elements are being updating to prevent recursion
+		self.gui_elements_being_updated = []
+
+		self.ui.liveOrPlaybackButtonGroup.setId(self.ui.liveRadio, 0)
+		self.ui.liveOrPlaybackButtonGroup.setId(self.ui.playbackRadio, 1)
+		self.ui.actionQuit.triggered.connect(QtGui.QApplication.instance().quit)
+		self.ui.liveOrPlaybackButtonGroup.buttonClicked[int].connect(self.ui.liveOrPlaybackPages.setCurrentIndex)
+
+		self.ui.livePage.layout().setAlignment(QtCore.Qt.AlignTop)
+
+		self.show()
+
+	def update(self, gui_element, new_value, update_function='setValue'):
+		'''Updates gui_element only if we are not already in the process
+		of updating that element (i.e. this function prevents recursive 
+		loops from Qt signaling when we update it).
+		'''
+		if gui_element not in self.gui_elements_being_updated:
+			self.gui_elements_being_updated.append(gui_element)
+			getattr(gui_element, update_function)(new_value)
+			self.gui_elements_being_updated.remove(gui_element)
+
+	def change_listening_port(self, value):
+		self.app.change_port(value)
+
+	def change_output_port(self, value):
+		self.app.set_forward_port(value)
+		if (self.app.forward_port != value):
+			self.update(self.ui.outputPortInput, value)
+
+	def change_output_host(self, value):
+		self.app.set_forward_host(value)
+		if (self.app.forward_host != value):
+			self.update(self.ui.outputHostInput, value, 'setText')
+
+	def change_enable_output(self, value):
+		self.app.set_enable_forwarding(value)
+		if (self.app.enable_forwarding != value):
+			self.update(self.ui.enableOutputInput, value, 'setChecked')
+
+
 	def check_to_update_console_box(self):
-		if self.messages:
-			# scoped_lock = QtCore.QWriteLocker(self.messages_mutex)
-			for message in self.messages:
-				self.console_box.appendHtml(message)
-				cursor = self.console_box.textCursor()
-				cursor.movePosition(QtGui.QTextCursor.End)
-				cursor.movePosition(QtGui.QTextCursor.StartOfLine)
-				self.console_box.setTextCursor(cursor)
-			self.messages = []
+		while not self.app.messages_to_print.empty():
+			try:
+				message = self.app.messages_to_print.get(False)
+			except queue.Empty:
+				break
+			self.ui.console.appendHtml(message)
+			cursor = self.ui.console.textCursor()
+			cursor.movePosition(QtGui.QTextCursor.End)
+			cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+			self.ui.console.setTextCursor(cursor)
 			
 
 
 
 
 def main():
-	args = sys.argv
-	args[0] = "OSC Console"
-	app = QtGui.QApplication(args)
-	osc_console = OscConsole()
+	argv = sys.argv
+	argv[0] = "OSC Console"
+	app = OscConsole(argv)
+	main_Window = MainWindow(app)
 	return_code = app.exec_()
-	osc_console.close()
+	app.close()
 	sys.exit(return_code)
 
 
