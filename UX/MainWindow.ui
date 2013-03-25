@@ -33,7 +33,10 @@
       <item>
        <widget class="QLabel" name="inputLabel">
         <property name="text">
-         <string>Input</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Input&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
         </property>
        </widget>
       </item>
@@ -144,6 +147,9 @@
           <property name="text">
            <string>Start time</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
           <property name="buddy">
            <cstring>startTimeInput</cstring>
           </property>
@@ -182,6 +188,9 @@
           </property>
           <property name="text">
            <string>End time</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="buddy">
            <cstring>endTimeInput</cstring>
@@ -233,6 +242,9 @@
           <property name="text">
            <string>Playback time</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
           <property name="buddy">
            <cstring>playbackTimeInput</cstring>
           </property>
@@ -276,14 +288,20 @@
            <item>
             <widget class="QPushButton" name="playOrPauseButton">
              <property name="text">
-              <string>Play (Space)</string>
+              <string>&amp;Play</string>
+             </property>
+             <property name="shortcut">
+              <string>Space, P</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QPushButton" name="stopButton">
              <property name="text">
-              <string>Stop (Esc)</string>
+              <string>&amp;Stop</string>
+             </property>
+             <property name="shortcut">
+              <string>S</string>
              </property>
             </widget>
            </item>
@@ -305,8 +323,17 @@
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="playbackFileLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Playback file</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="buddy">
            <cstring>playbackFileInput</cstring>
@@ -354,7 +381,10 @@
       <item>
        <widget class="QLabel" name="outputLabel">
         <property name="text">
-         <string>Output</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Output&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
         </property>
        </widget>
       </item>

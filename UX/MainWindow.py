@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Mon Mar 25 12:30:28 2013
+# Created: Mon Mar 25 12:53:41 2013
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,6 +26,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.inputLabel = QtGui.QLabel(self.centralwidget)
+        self.inputLabel.setTextFormat(QtCore.Qt.RichText)
         self.inputLabel.setObjectName("inputLabel")
         self.horizontalLayout_3.addWidget(self.inputLabel)
         spacerItem = QtGui.QSpacerItem(17, 17, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -88,6 +89,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.startTimeLabel.sizePolicy().hasHeightForWidth())
         self.startTimeLabel.setSizePolicy(sizePolicy)
+        self.startTimeLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.startTimeLabel.setObjectName("startTimeLabel")
         self.gridLayout.addWidget(self.startTimeLabel, 5, 0, 1, 1)
         self.endTimeInput = QtGui.QTimeEdit(self.playbackPage)
@@ -102,6 +104,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.endTimeLabel.sizePolicy().hasHeightForWidth())
         self.endTimeLabel.setSizePolicy(sizePolicy)
+        self.endTimeLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.endTimeLabel.setObjectName("endTimeLabel")
         self.gridLayout.addWidget(self.endTimeLabel, 6, 0, 1, 1)
         self.startTimeResetButton = QtGui.QPushButton(self.playbackPage)
@@ -121,6 +124,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.playbackTimeLabel.sizePolicy().hasHeightForWidth())
         self.playbackTimeLabel.setSizePolicy(sizePolicy)
+        self.playbackTimeLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.playbackTimeLabel.setObjectName("playbackTimeLabel")
         self.gridLayout.addWidget(self.playbackTimeLabel, 3, 0, 1, 1)
         self.playbackTimeInput = QtGui.QTimeEdit(self.playbackPage)
@@ -150,6 +154,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addItem(spacerItem4)
         self.gridLayout.addWidget(self.widget, 1, 0, 1, 6)
         self.playbackFileLabel = QtGui.QLabel(self.playbackPage)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.playbackFileLabel.sizePolicy().hasHeightForWidth())
+        self.playbackFileLabel.setSizePolicy(sizePolicy)
+        self.playbackFileLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.playbackFileLabel.setObjectName("playbackFileLabel")
         self.gridLayout.addWidget(self.playbackFileLabel, 0, 0, 1, 1)
         self.widget1 = QtGui.QWidget(self.playbackPage)
@@ -178,6 +188,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.outputLabel = QtGui.QLabel(self.centralwidget)
+        self.outputLabel.setTextFormat(QtCore.Qt.RichText)
         self.outputLabel.setObjectName("outputLabel")
         self.horizontalLayout_4.addWidget(self.outputLabel)
         spacerItem5 = QtGui.QSpacerItem(17, 17, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -239,7 +250,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "OSC Console", None, QtGui.QApplication.UnicodeUTF8))
-        self.inputLabel.setText(QtGui.QApplication.translate("MainWindow", "Input", None, QtGui.QApplication.UnicodeUTF8))
+        self.inputLabel.setText(QtGui.QApplication.translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">Input</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.liveRadio.setText(QtGui.QApplication.translate("MainWindow", "Live", None, QtGui.QApplication.UnicodeUTF8))
         self.playbackRadio.setText(QtGui.QApplication.translate("MainWindow", "Playback", None, QtGui.QApplication.UnicodeUTF8))
         self.listeningPortLabel.setText(QtGui.QApplication.translate("MainWindow", "Listening port", None, QtGui.QApplication.UnicodeUTF8))
@@ -251,12 +262,14 @@ class Ui_MainWindow(object):
         self.startTimeInput.setDisplayFormat(QtGui.QApplication.translate("MainWindow", "HH:mm:ss", None, QtGui.QApplication.UnicodeUTF8))
         self.playbackTimeLabel.setText(QtGui.QApplication.translate("MainWindow", "Playback time", None, QtGui.QApplication.UnicodeUTF8))
         self.playbackTimeInput.setDisplayFormat(QtGui.QApplication.translate("MainWindow", "HH:mm:ss", None, QtGui.QApplication.UnicodeUTF8))
-        self.playOrPauseButton.setText(QtGui.QApplication.translate("MainWindow", "Play (Space)", None, QtGui.QApplication.UnicodeUTF8))
-        self.stopButton.setText(QtGui.QApplication.translate("MainWindow", "Stop (Esc)", None, QtGui.QApplication.UnicodeUTF8))
+        self.playOrPauseButton.setText(QtGui.QApplication.translate("MainWindow", "&Play", None, QtGui.QApplication.UnicodeUTF8))
+        self.playOrPauseButton.setShortcut(QtGui.QApplication.translate("MainWindow", "Space, P", None, QtGui.QApplication.UnicodeUTF8))
+        self.stopButton.setText(QtGui.QApplication.translate("MainWindow", "&Stop", None, QtGui.QApplication.UnicodeUTF8))
+        self.stopButton.setShortcut(QtGui.QApplication.translate("MainWindow", "S", None, QtGui.QApplication.UnicodeUTF8))
         self.playbackFileLabel.setText(QtGui.QApplication.translate("MainWindow", "Playback file", None, QtGui.QApplication.UnicodeUTF8))
         self.playbackFileOpenButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.loopPlaybackInput.setText(QtGui.QApplication.translate("MainWindow", "Loop playback", None, QtGui.QApplication.UnicodeUTF8))
-        self.outputLabel.setText(QtGui.QApplication.translate("MainWindow", "Output", None, QtGui.QApplication.UnicodeUTF8))
+        self.outputLabel.setText(QtGui.QApplication.translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">Output</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.enableOutputInput.setText(QtGui.QApplication.translate("MainWindow", "Enable", None, QtGui.QApplication.UnicodeUTF8))
         self.outputAddressLabel.setText(QtGui.QApplication.translate("MainWindow", "Address", None, QtGui.QApplication.UnicodeUTF8))
         self.outputAddressInput.setText(QtGui.QApplication.translate("MainWindow", "127.0.0.1", None, QtGui.QApplication.UnicodeUTF8))

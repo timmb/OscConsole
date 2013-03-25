@@ -506,12 +506,14 @@ class MainWindow(QtGui.QMainWindow):
 		self.app.change_mode('playback')
 
 	def play_or_pause_button(self):
+		shortcut = self.ui.playOrPauseButton.shortcut()
 		if self.app.log_player.state == 'playing':
 			self.app.log_player.pause()
-			self.ui.playOrPauseButton.setText("Play (Space)")
+			self.ui.playOrPauseButton.setText("Play")
 		else:
 			self.app.log_player.play()
-			self.ui.playOrPauseButton.setText("Pause (Space)")
+			self.ui.playOrPauseButton.setText("Pause")
+		self.ui.playOrPauseButton.setShortcut(shortcut)
 
 	def stop_button(self):
 		self.app.log_player.stop()
@@ -558,9 +560,9 @@ class MainWindow(QtGui.QMainWindow):
 
 	def state_changed_callback(self, new_state):
 		if new_state!='playing':
-			self.ui.playOrPauseButton.setText('Play (Space)')
+			self.ui.playOrPauseButton.setText('&Play')
 		else:
-			self.ui.playOrPauseButton.setText('Pause (Space)')
+			self.ui.playOrPauseButton.setText('&Pause')
 
 	def check_to_update_console_box(self):
 		while not self.app.messages_to_print.empty():
