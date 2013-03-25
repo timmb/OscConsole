@@ -65,6 +65,7 @@ class LogPlayer(QtCore.QThread):
 		self.current_playback_index = 0
 		self._state = 'stopped'
 		self._inside_tick = False
+		self.enable_looping = False
 
 	@property
 	def current_playback_time(self):
@@ -185,7 +186,7 @@ class LogPlayer(QtCore.QThread):
 								seconds = int(match.group('seconds'))
 								millis = int(match.group('milliseconds'))
 								comment = match.group('comment')
-								self.log(comment, screen_only=True)
+								# self.log(comment, screen_only=True)
 							except Exception as e:
 								self.log("Problem when parsing comment line "+line+"\n"+str(e))
 						else:
@@ -218,8 +219,12 @@ class LogPlayer(QtCore.QThread):
 				self.process_message(self.messages[self.current_playback_index])
 				self.current_playback_index += 1
 			if self.current_playback_time > self.requested_end_time:
-				self.stop("Reached end of requested playback period")
-			if self.current_playback_index >= len(self.messages):
+				if self.enable_looping:
+					self.current_playback_time = self.requested_start_time
+					self.current_playback_index = len([x for x in self.messages if x[0]<self.current_playback_time])
+				else:
+					self.stop("Reached end of requested playback period")
+			if self.current_playback_index >= len(self.messages) and not self.enable_looping and self.state=='playing':
 				self.stop("Reached end of log file")
 			self.time_of_last_tick = t
 		self._inside_tick = False
@@ -246,11 +251,8 @@ class LogPlayer(QtCore.QThread):
 		if self.state != 'stopped':
 			self.ticker.stop()
 			m = "Stopping playback"+(message and (": "+message) or "")
-			print(m)
 			self.log(m, True)
-			print('calling exit()')
 			self.exit()
-			print('exited')
 			self.state = 'stopped'
 		self.current_playback_time = self.requested_start_time
 
@@ -509,7 +511,7 @@ class MainWindow(QtGui.QMainWindow):
 			self.ui.playOrPauseButton.setText("Play (Space)")
 		else:
 			self.app.log_player.play()
-			self.ui.playOrPauseButton.setText("Pause (Esc)")
+			self.ui.playOrPauseButton.setText("Pause (Space)")
 
 	def stop_button(self):
 		self.app.log_player.stop()
@@ -524,7 +526,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.app.log_player.requested_end_time = qtime_to_seconds(self.ui.startTimeInput.time())
 
 	def change_loop_playback(self, value):
-		print("loop not implemented yet")
+		self.app.log_player.enable_looping = True
 
 	def reset_start_time(self):
 		self.app.log_player.requested_start_time = self.app.log_player.time_of_first_message_in_log
