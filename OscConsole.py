@@ -7,7 +7,7 @@ from threading import Thread
 import traceback
 import Queue as queue
 import UX.MainWindow
-from time import time
+from time import time, clock
 import re
 
 
@@ -26,7 +26,7 @@ class ThreadedSender(QtCore.QThread):
 		if self.is_running:
 			try:
 				self.queue.put_nowait(message)
-			except Queue.Full as e:
+			except queue.Full as e:
 				print("Warning: OSC message dropped as send queue is full")
 
 
@@ -41,6 +41,7 @@ class ThreadedSender(QtCore.QThread):
 			try:
 				message = self.queue.get(True, 0.1)
 				self.client.sendto(message, self.destination, 0.5)
+				print c2 - c1
 			except queue.Empty as e:
 				pass
 			except Exception as e:
@@ -273,9 +274,9 @@ class OscConsole(QtGui.QApplication):
 		self.playback_time = None
 		self.playback_start_time = None
 		self.playback_end_time = None
+		self.enable_console = True
 
 		self.messages = []
-		self.message_count = 0
 		self.messages_to_print = queue.Queue(500)
 
 		self.sender = ThreadedSender(self.log, self)
@@ -285,6 +286,7 @@ class OscConsole(QtGui.QApplication):
 
 		self.change_mode('live')
 		self.aboutToQuit.connect(self.close)
+
 
 	def change_mode(self, new_mode):
 		if new_mode == self.mode:
@@ -387,28 +389,21 @@ class OscConsole(QtGui.QApplication):
 	def add_message(self, string, screen_only=False, time_override=None):
 		time_override = time_override or QtCore.QDateTime.currentDateTime()
 		time = time_override.toString('hh:mm:ss.zzz')
-		# if self.message_count % 2:
-		# 	background_color = '#fff'
-		# else:
-		# 	background_color = '#e2dea7'
-		# string = '<p style="background-color: {0};"> <span style="font-weight: bold">{1}</span> {2}</p>'.format(
-			# background_color, time, string)
-		# scoped_lock = QtCore.QWriteLocker(self.messages_mutex)
-		formatted_string = '<span style="font-weight: bold;">{0}</span> {1}</p>'.format(
+		if self.enable_console:
+			formatted_string = '<span style="font-weight: bold;">{0}</span> {1}</p>'.format(
 			time, string)
-		if screen_only:
-			formatted_string = '<span style="color: #f32;">'+formatted_string+'</span>'
+			if screen_only:
+				formatted_string = '<span style="color: #f32;">'+formatted_string+'</span>'
+			try:
+				self.messages_to_print.put_nowait(formatted_string)
+			except queue.Full as e:
+				print("Warning: console buffer full")
 		if not screen_only:
 			unformatted_string = '{0} {1}'.format(time, string)
 			self.messages.append(unformatted_string)
-		try:
-			self.messages_to_print.put_nowait(formatted_string)
-		except queue.Full as e:
-			print("Warning: console buffer full")
 
 		if len(self.messages) > 250000:
 			self.messages = self.messages[:245000]
-		self.message_count += 1
 
 	def save_log(self, filename):
 		self.log("Saving to {}...".format(filename), screen_only=True)
@@ -462,6 +457,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.ui.startTimeResetButton.clicked.connect(self.reset_start_time)
 		self.ui.endTimeResetButton.clicked.connect(self.reset_end_time)
 		self.ui.loopPlaybackInput.toggled.connect(self.change_loop_playback)
+		self.ui.enableConsoleInput.toggled.connect(self.change_enable_console)
 
 		self.app.log_player.new_playback_time_callbacks.append(
 			lambda s: self.time_changed_callback(self.ui.playbackTimeInput, s))
@@ -545,6 +541,12 @@ class MainWindow(QtGui.QMainWindow):
 
 	def reset_end_time(self):
 		self.app.log_player.requested_start_time = self.app.log_player.time_of_last_message_in_log
+
+	def change_enable_console(self, value):
+		self.app.enable_console = value
+		self.ui.console.setEnabled(value)
+		if not value:
+			self.ui.console.clear()
 
 	def save_as(self):
 		new_save_file = QtGui.QFileDialog.getSaveFileName(self, "Save log data", 
