@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Sat Mar 23 12:15:55 2013
+# Created: Sat Mar 23 14:31:10 2013
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(389, 603)
+        MainWindow.resize(418, 603)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtGui.QVBoxLayout(self.centralwidget)
@@ -91,6 +91,7 @@ class Ui_MainWindow(object):
         self.startTimeLabel.setObjectName("startTimeLabel")
         self.gridLayout.addWidget(self.startTimeLabel, 5, 0, 1, 1)
         self.endTimeInput = QtGui.QTimeEdit(self.playbackPage)
+        self.endTimeInput.setCurrentSection(QtGui.QDateTimeEdit.HourSection)
         self.endTimeInput.setObjectName("endTimeInput")
         self.gridLayout.addWidget(self.endTimeInput, 6, 1, 1, 2)
         spacerItem1 = QtGui.QSpacerItem(45, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -123,6 +124,7 @@ class Ui_MainWindow(object):
         self.playbackTimeLabel.setObjectName("playbackTimeLabel")
         self.gridLayout.addWidget(self.playbackTimeLabel, 3, 0, 1, 1)
         self.playbackTimeInput = QtGui.QTimeEdit(self.playbackPage)
+        self.playbackTimeInput.setCurrentSection(QtGui.QDateTimeEdit.HourSection)
         self.playbackTimeInput.setObjectName("playbackTimeInput")
         self.gridLayout.addWidget(self.playbackTimeInput, 3, 1, 1, 2)
         self.widget = QtGui.QWidget(self.playbackPage)
@@ -205,7 +207,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.outputDestinationHBox)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar()
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 389, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 418, 22))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtGui.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -217,6 +219,9 @@ class Ui_MainWindow(object):
         self.actionSaveAs.setObjectName("actionSaveAs")
         self.actionQuit = QtGui.QAction(MainWindow)
         self.actionQuit.setObjectName("actionQuit")
+        self.actionOpen = QtGui.QAction(MainWindow)
+        self.actionOpen.setObjectName("actionOpen")
+        self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSaveAs)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
@@ -229,7 +234,7 @@ class Ui_MainWindow(object):
         self.outputPortLabel.setBuddy(self.outputPortInput)
 
         self.retranslateUi(MainWindow)
-        self.liveOrPlaybackPages.setCurrentIndex(0)
+        self.liveOrPlaybackPages.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -239,10 +244,13 @@ class Ui_MainWindow(object):
         self.playbackRadio.setText(QtGui.QApplication.translate("MainWindow", "Playback", None, QtGui.QApplication.UnicodeUTF8))
         self.listeningPortLabel.setText(QtGui.QApplication.translate("MainWindow", "Listening port", None, QtGui.QApplication.UnicodeUTF8))
         self.startTimeLabel.setText(QtGui.QApplication.translate("MainWindow", "Start time", None, QtGui.QApplication.UnicodeUTF8))
+        self.endTimeInput.setDisplayFormat(QtGui.QApplication.translate("MainWindow", "HH:mm:ss", None, QtGui.QApplication.UnicodeUTF8))
         self.endTimeLabel.setText(QtGui.QApplication.translate("MainWindow", "End time", None, QtGui.QApplication.UnicodeUTF8))
         self.startTimeResetButton.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
         self.endTimeResetButton.setText(QtGui.QApplication.translate("MainWindow", "Reset", None, QtGui.QApplication.UnicodeUTF8))
+        self.startTimeInput.setDisplayFormat(QtGui.QApplication.translate("MainWindow", "HH:mm:ss", None, QtGui.QApplication.UnicodeUTF8))
         self.playbackTimeLabel.setText(QtGui.QApplication.translate("MainWindow", "Playback time", None, QtGui.QApplication.UnicodeUTF8))
+        self.playbackTimeInput.setDisplayFormat(QtGui.QApplication.translate("MainWindow", "HH:mm:ss", None, QtGui.QApplication.UnicodeUTF8))
         self.playOrPauseButton.setText(QtGui.QApplication.translate("MainWindow", "Play (Space)", None, QtGui.QApplication.UnicodeUTF8))
         self.stopButton.setText(QtGui.QApplication.translate("MainWindow", "Stop (Esc)", None, QtGui.QApplication.UnicodeUTF8))
         self.playbackFileLabel.setText(QtGui.QApplication.translate("MainWindow", "Playback file", None, QtGui.QApplication.UnicodeUTF8))
@@ -254,7 +262,9 @@ class Ui_MainWindow(object):
         self.outputAddressInput.setText(QtGui.QApplication.translate("MainWindow", "127.0.0.1", None, QtGui.QApplication.UnicodeUTF8))
         self.outputPortLabel.setText(QtGui.QApplication.translate("MainWindow", "Port", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
-        self.actionSaveAs.setText(QtGui.QApplication.translate("MainWindow", "Save log as...", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionSaveAs.setText(QtGui.QApplication.translate("MainWindow", "Save log as", None, QtGui.QApplication.UnicodeUTF8))
         self.actionSaveAs.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+S", None, QtGui.QApplication.UnicodeUTF8))
         self.actionQuit.setText(QtGui.QApplication.translate("MainWindow", "Quit", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionOpen.setText(QtGui.QApplication.translate("MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionOpen.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
 

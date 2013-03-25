@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
+    <width>418</width>
     <height>603</height>
    </rect>
   </property>
@@ -84,7 +84,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="livePage">
        <property name="sizePolicy">
@@ -150,7 +150,14 @@
          </widget>
         </item>
         <item row="6" column="1" colspan="2">
-         <widget class="QTimeEdit" name="endTimeInput"/>
+         <widget class="QTimeEdit" name="endTimeInput">
+          <property name="currentSection">
+           <enum>QDateTimeEdit::HourSection</enum>
+          </property>
+          <property name="displayFormat">
+           <string>HH:mm:ss</string>
+          </property>
+         </widget>
         </item>
         <item row="5" column="5">
          <spacer name="horizontalSpacer">
@@ -209,7 +216,11 @@
          </spacer>
         </item>
         <item row="5" column="1" colspan="2">
-         <widget class="QTimeEdit" name="startTimeInput"/>
+         <widget class="QTimeEdit" name="startTimeInput">
+          <property name="displayFormat">
+           <string>HH:mm:ss</string>
+          </property>
+         </widget>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="playbackTimeLabel">
@@ -228,7 +239,14 @@
          </widget>
         </item>
         <item row="3" column="1" colspan="2">
-         <widget class="QTimeEdit" name="playbackTimeInput"/>
+         <widget class="QTimeEdit" name="playbackTimeInput">
+          <property name="currentSection">
+           <enum>QDateTimeEdit::HourSection</enum>
+          </property>
+          <property name="displayFormat">
+           <string>HH:mm:ss</string>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0" colspan="6">
          <widget class="QWidget" name="widget" native="true">
@@ -419,7 +437,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>389</width>
+     <width>418</width>
      <height>22</height>
     </rect>
    </property>
@@ -427,6 +445,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen"/>
     <addaction name="actionSaveAs"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -436,7 +455,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionSaveAs">
    <property name="text">
-    <string>Save log as...</string>
+    <string>Save log as</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -445,6 +464,14 @@
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>
