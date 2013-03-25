@@ -173,7 +173,7 @@ class LogPlayer(QtCore.QThread):
 									self.log("Unrecognised type tag: "+tag)
 							t = 3600*hours + 60*minutes + seconds + 0.001*millis
 							self.messages.append((t, (address, tags, args, source)))
-							print(self.messages[-1])
+							# print(self.messages[-1])
 						except Exception as e:
 							self.log("Problem when parsing line "+line+"\n"+str(e))
 					else:
@@ -226,7 +226,7 @@ class LogPlayer(QtCore.QThread):
 
 	def process_message(self, message):
 		print('processing message '+str(message))
-		self.osc_message_callback(*message[1], time_override=message[0])
+		self.osc_message_callback(*message[1], time_override=seconds_to_qtime(message[0]))
 
 	def play(self):
 		self.time_of_last_tick = time()
@@ -247,12 +247,12 @@ class LogPlayer(QtCore.QThread):
 			self.ticker.stop()
 			m = "Stopping playback"+(message and (": "+message) or "")
 			print(m)
-			self.current_playback_time = self.requested_start_time
 			self.log(m, True)
 			print('calling exit()')
 			self.exit()
 			print('exited')
 			self.state = 'stopped'
+		self.current_playback_time = self.requested_start_time
 
 
 class OscConsole(QtGui.QApplication):
@@ -331,8 +331,8 @@ class OscConsole(QtGui.QApplication):
 			self.sender.destination = (self.forward_host, self.forward_port)
 
 	def log(self, string, screen_only=False, time_override=None):
-		'''time_override may be of form 'hh:mm:ss.zzz'. '''
-		self.add_message('*** '+string, screen_only)
+		'''time_override may be QTime object. '''
+		self.add_message('*** '+string, screen_only, time_override=time_override)
 
 	def change_port(self, new_port_number):
 		if self.port_number==new_port_number:
@@ -376,7 +376,8 @@ class OscConsole(QtGui.QApplication):
 			self.sender.send(message)
 
 	def add_message(self, string, screen_only=False, time_override=None):
-		time = time_override or QtCore.QDateTime.currentDateTime().toString('hh:mm:ss.zzz')
+		time_override = time_override or QtCore.QDateTime.currentDateTime()
+		time = time_override.toString('hh:mm:ss.zzz')
 		# if self.message_count % 2:
 		# 	background_color = '#fff'
 		# else:
@@ -442,7 +443,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.ui.actionQuit.triggered.connect(QtGui.QApplication.instance().quit)
 		self.ui.actionSaveAs.triggered.connect(self.save_as)
 		self.ui.actionOpen.triggered.connect(self.open)
-		self.ui.playbackFileOpenButton.triggered.connect(self.ui.actionOpen.trigger)
+		self.ui.playbackFileOpenButton.clicked.connect(self.ui.actionOpen.trigger)
 		self.ui.playbackFileInput.editingFinished.connect(lambda: self.open_file(self.ui.playbackFileInput.text()))
 		self.ui.playOrPauseButton.clicked.connect(self.play_or_pause_button)
 		self.ui.stopButton.clicked.connect(self.stop_button)

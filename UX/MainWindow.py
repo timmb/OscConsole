@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created: Sat Mar 23 14:31:10 2013
+# Created: Mon Mar 25 12:30:28 2013
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -152,9 +152,6 @@ class Ui_MainWindow(object):
         self.playbackFileLabel = QtGui.QLabel(self.playbackPage)
         self.playbackFileLabel.setObjectName("playbackFileLabel")
         self.gridLayout.addWidget(self.playbackFileLabel, 0, 0, 1, 1)
-        self.loopPlaybackInput = QtGui.QCheckBox(self.playbackPage)
-        self.loopPlaybackInput.setObjectName("loopPlaybackInput")
-        self.gridLayout.addWidget(self.loopPlaybackInput, 3, 3, 1, 3)
         self.widget1 = QtGui.QWidget(self.playbackPage)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -173,6 +170,9 @@ class Ui_MainWindow(object):
         self.playbackFileOpenButton.setObjectName("playbackFileOpenButton")
         self.horizontalLayout_2.addWidget(self.playbackFileOpenButton)
         self.gridLayout.addWidget(self.widget1, 0, 1, 1, 5)
+        self.loopPlaybackInput = QtGui.QCheckBox(self.playbackPage)
+        self.loopPlaybackInput.setObjectName("loopPlaybackInput")
+        self.gridLayout.addWidget(self.loopPlaybackInput, 3, 3, 1, 3)
         self.liveOrPlaybackPages.addWidget(self.playbackPage)
         self.verticalLayout.addWidget(self.liveOrPlaybackPages)
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
@@ -254,8 +254,8 @@ class Ui_MainWindow(object):
         self.playOrPauseButton.setText(QtGui.QApplication.translate("MainWindow", "Play (Space)", None, QtGui.QApplication.UnicodeUTF8))
         self.stopButton.setText(QtGui.QApplication.translate("MainWindow", "Stop (Esc)", None, QtGui.QApplication.UnicodeUTF8))
         self.playbackFileLabel.setText(QtGui.QApplication.translate("MainWindow", "Playback file", None, QtGui.QApplication.UnicodeUTF8))
-        self.loopPlaybackInput.setText(QtGui.QApplication.translate("MainWindow", "Loop playback", None, QtGui.QApplication.UnicodeUTF8))
         self.playbackFileOpenButton.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.loopPlaybackInput.setText(QtGui.QApplication.translate("MainWindow", "Loop playback", None, QtGui.QApplication.UnicodeUTF8))
         self.outputLabel.setText(QtGui.QApplication.translate("MainWindow", "Output", None, QtGui.QApplication.UnicodeUTF8))
         self.enableOutputInput.setText(QtGui.QApplication.translate("MainWindow", "Enable", None, QtGui.QApplication.UnicodeUTF8))
         self.outputAddressLabel.setText(QtGui.QApplication.translate("MainWindow", "Address", None, QtGui.QApplication.UnicodeUTF8))
