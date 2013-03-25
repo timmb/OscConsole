@@ -327,8 +327,8 @@ class OscConsole(QtGui.QApplication):
 			return
 		if (self.port_number == self.forward_port
 			and self.forward_host in ('localhost', '127.0.0.1')):
-			log("Error: Cannot forward to the same host and port as the one being listened to")
-			self.enable_forwarding = False
+			self.log("Error: Cannot forward to the same host and port as the one being listened to")
+			self.set_enable_forwarding(False)
 		else:
 			self.sender.destination = (self.forward_host, self.forward_port)
 
@@ -358,6 +358,9 @@ class OscConsole(QtGui.QApplication):
 		self.close_server()
 		self.log("Stopping sender thread")
 		self.sender.close()
+		self.log("Stopping log player")
+		self.log_player.stop()
+		self.log_player.wait()
 
 	def close_server(self):
 		self.log("Closing server")
@@ -424,7 +427,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.console_update_timer.start(200)
 
 		self.ui.listeningPortInput.setValue(self.app.port_number)
-		self.ui.listeningPortInput.editingFinished.connect(self.change_listening_port)
+		self.ui.listeningPortInput.valueChanged.connect(self.change_listening_port)
 		
 		self.ui.enableOutputInput.setChecked(self.app.enable_forwarding)
 		self.ui.enableOutputInput.toggled.connect(self.change_enable_output)
@@ -433,7 +436,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.ui.outputAddressInput.editingFinished.connect(self.change_output_host)
 
 		self.ui.outputPortInput.setValue(self.app.forward_port)
-		self.ui.outputPortInput.editingFinished.connect(self.change_output_port)
+		self.ui.outputPortInput.valueChanged.connect(self.change_output_port)
 
 		# remember which gui elements are being updating to prevent recursion
 		self.gui_elements_being_updated = []
@@ -465,6 +468,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.app.log_player.new_state_callbacks.append(self.state_changed_callback)
 
 		self.ui.liveOrPlaybackButtonGroup.buttonClicked[int].connect(self.ui.liveOrPlaybackPages.setCurrentIndex)
+		self.ui.liveRadio.click()
 
 		self.ui.livePage.layout().setAlignment(QtCore.Qt.AlignTop)
 
@@ -480,24 +484,27 @@ class MainWindow(QtGui.QMainWindow):
 			getattr(gui_element, update_function)(new_value)
 			self.gui_elements_being_updated.remove(gui_element)
 
-	def change_listening_port(self):
-		self.app.change_port(self.ui.listeningPortInput.value())
+	def change_listening_port(self, value):
+		self.app.change_port(value)
 
-	def change_output_port(self):
-		value = self.ui.outputPortInput.value()
+	def change_output_port(self, value):
+		# value = self.ui.outputPortInput.value()
 		self.app.set_forward_port(value)
 		if (self.app.forward_port != value):
-			self.update(self.ui.outputPortInput, value)
+			self.update(self.ui.outputPortInput, self.app.forward_port)
+		self.update(self.ui.enableOutputInput, self.app.enable_forwarding, 'setChecked')
 
-	def change_output_host(self, value):
+	def change_output_host(self):
+		value = self.ui.outputAddressInput.text()
 		self.app.set_forward_host(value)
 		if (self.app.forward_host != value):
-			self.update(self.ui.outputHostInput, value, 'setText')
+			self.update(self.ui.outputHostInput, self.app.forward_host, 'setText')
 
 	def change_enable_output(self, value):
 		self.app.set_enable_forwarding(value)
+		print(self.app.enable_forwarding, value)
 		if (self.app.enable_forwarding != value):
-			self.update(self.ui.enableOutputInput, value, 'setChecked')
+			self.update(self.ui.enableOutputInput, self.app.enable_forwarding, 'setChecked')
 
 	def change_to_live_mode(self):
 		self.app.change_mode('live')
@@ -582,7 +589,7 @@ def qtime_to_seconds(value):
 	return abs(value.secsTo(QtCore.QTime(0,0)))
 
 def seconds_to_qtime(value):
-	return QtCore.QTime(0,0).addSecs(int(value))
+	return QtCore.QTime(0,0).addSecs(int(value)).addMSecs(value % 1.)
 
 
 
