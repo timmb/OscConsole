@@ -17,14 +17,18 @@ class ThreadedSender(QtCore.QThread):
 		self.is_running = False
 		self._destination = ("127.0.0.1", 0)
 		self.client = OSCClient()
-		self.queue = queue.Queue()
+		self.queue = queue.Queue(100)
 		self.log = log_function
 
 	def send(self, message):
 		# assert(self.is_running)
 		if not self.is_running: self.log("ERROR: Sender thread is not running")
 		if self.is_running:
-			self.queue.put(message)
+			try:
+				self.queue.put_nowait(message)
+			except Queue.Full as e:
+				print("Warning: OSC message dropped as send queue is full")
+
 
 	def close(self):
 		self.is_running = False
@@ -230,7 +234,7 @@ class LogPlayer(QtCore.QThread):
 		self._inside_tick = False
 
 	def process_message(self, message):
-		print('processing message '+str(message))
+		# print('processing message '+str(message))
 		self.osc_message_callback(*message[1], time_override=seconds_to_qtime(message[0]))
 
 	def play(self):
@@ -272,7 +276,7 @@ class OscConsole(QtGui.QApplication):
 
 		self.messages = []
 		self.message_count = 0
-		self.messages_to_print = queue.Queue(50)
+		self.messages_to_print = queue.Queue(500)
 
 		self.sender = ThreadedSender(self.log, self)
 		self.sender.start()
@@ -502,7 +506,6 @@ class MainWindow(QtGui.QMainWindow):
 
 	def change_enable_output(self, value):
 		self.app.set_enable_forwarding(value)
-		print(self.app.enable_forwarding, value)
 		if (self.app.enable_forwarding != value):
 			self.update(self.ui.enableOutputInput, self.app.enable_forwarding, 'setChecked')
 
@@ -572,12 +575,15 @@ class MainWindow(QtGui.QMainWindow):
 			self.ui.playOrPauseButton.setText('&Pause')
 
 	def check_to_update_console_box(self):
+		console_edited = False
 		while not self.app.messages_to_print.empty():
 			try:
 				message = self.app.messages_to_print.get(False)
 			except queue.Empty:
-				break
+				return
 			self.ui.console.appendHtml(message)
+			console_edited = True
+		if console_edited:
 			cursor = self.ui.console.textCursor()
 			cursor.movePosition(QtGui.QTextCursor.End)
 			cursor.movePosition(QtGui.QTextCursor.StartOfLine)
@@ -589,7 +595,8 @@ def qtime_to_seconds(value):
 	return abs(value.secsTo(QtCore.QTime(0,0)))
 
 def seconds_to_qtime(value):
-	return QtCore.QTime(0,0).addSecs(int(value)).addMSecs(value % 1.)
+	x = QtCore.QTime(0,0, int(value), value % 1.)
+	return x
 
 
 
