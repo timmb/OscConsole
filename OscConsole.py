@@ -41,7 +41,7 @@ class ThreadedSender(QtCore.QThread):
 			try:
 				message = self.queue.get(True, 0.1)
 				self.client.sendto(message, self.destination, 0.5)
-				print c2 - c1
+				print(c2 - c1)
 			except queue.Empty as e:
 				pass
 			except Exception as e:
