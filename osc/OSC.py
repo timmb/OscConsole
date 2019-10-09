@@ -159,7 +159,7 @@ Original Comments
 """
 
 import math, re, socket, select, string, struct, sys, threading, time, types, array, errno, inspect
-from socketserver import UDPServer, DatagramRequestHandler, ForkingMixIn, ThreadingMixIn, StreamRequestHandler, TCPServer
+from socketserver import UDPServer, DatagramRequestHandler, ThreadingMixIn, StreamRequestHandler, TCPServer
 from contextlib import closing
 
 global version
@@ -2338,19 +2338,6 @@ class OSCServer(UDPServer, OSCAddressSpace):
 		if addr_cmd in ('unsubscribe', 'silence', 'nosend', 'deltarget'):
 			return self._unsubscribe(data, client_address)
 
-class ForkingOSCServer(ForkingMixIn, OSCServer):
-	"""An Asynchronous OSCServer.
-	This server forks a new process to handle each incoming request.
-	""" 
-	# set the RequestHandlerClass, will be overridden by ForkingOSCServer & ThreadingOSCServer
-	RequestHandlerClass = ThreadingOSCRequestHandler
-
-class ThreadingOSCServer(ThreadingMixIn, OSCServer):
-	"""An Asynchronous OSCServer.
-	This server starts a new thread to handle each incoming request.
-	""" 
-	# set the RequestHandlerClass, will be overridden by ForkingOSCServer & ThreadingOSCServer
-	RequestHandlerClass = ThreadingOSCRequestHandler
 
 ######
 #
